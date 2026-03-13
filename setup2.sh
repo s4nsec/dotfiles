@@ -1,67 +1,69 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-function usage {
-	echo "Usage: $0 <mode> [options]"
-	echo
-	echo "Modes:"
-	echo "  dev               Setup a development environment."
-	echo "  virt              Setup a virtualization environment."
-	echo "  llvm [VERSION]    Setup LLVM toolchain (defaults to version 20 if not specified)."
-	echo "  kernel            Setup a kernel development environment."
-	echo "  rust              Setup a Rust development environment."
-	echo "  docker            Install and configure Docker on Ubuntu Linux."
-	echo "  help              Show this message."
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: ./setup2.sh <mode> [options]
+
+Modes:
+  dev               Bootstrap the main development environment.
+  virt              Setup a virtualization environment.
+  llvm [VERSION]    Setup LLVM toolchain. Defaults to version 20.
+  kernel            Setup a kernel development environment.
+  rust              Setup a Rust development environment.
+  docker            Install and configure Docker.
+  help              Show this message.
+
+Examples:
+  ./setup2.sh dev
+  ./setup2.sh dev --set-default-shell
+  ./setup2.sh llvm 20
+EOF
 }
 
-source scripts/dev.sh
-source scripts/virtualization.sh
-source scripts/llvm.sh
-source scripts/kernel.sh
-source scripts/rust.sh
-source scripts/docker.sh
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ $# -lt 1 ]; then
-	usage
-	exit 0
+source "${SCRIPT_DIR}/scripts/dev.sh"
+source "${SCRIPT_DIR}/scripts/virtualization.sh"
+source "${SCRIPT_DIR}/scripts/llvm.sh"
+source "${SCRIPT_DIR}/scripts/kernel.sh"
+source "${SCRIPT_DIR}/scripts/rust.sh"
+source "${SCRIPT_DIR}/scripts/docker.sh"
+
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 0
 fi
 
 MODE="$1"
 shift
 
-case "$MODE" in
-"dev")
-	setup_dev
-	;;
-"virt")
-	setup_virtualization
-	;;
-"llvm")
-	# If an argument is provided after 'llvm', treat it as the version;
-	# otherwise, default to 20.
-	if [ $# -gt 0 ]; then
-		VERSION="$1"
-	else
-		VERSION="20"
-	fi
-	setup_llvm "$VERSION"
-	;;
-"kernel")
-    setup_kernel_env
+case "${MODE}" in
+  dev)
+    setup_dev "$@"
     ;;
-"rust")
-    setup_rust
+  virt)
+    setup_virtualization "$@"
     ;;
-"docker")
-	setup_docker
-	;;
-"help")
-	usage
-	;;
-*)
-	echo "Error: unknown mode '$MODE'"
-	usage
-	exit 1
-	;;
+  llvm)
+    setup_llvm "${1:-20}"
+    ;;
+  kernel)
+    setup_kernel_env "$@"
+    ;;
+  rust)
+    setup_rust "$@"
+    ;;
+  docker)
+    setup_docker "$@"
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    printf "Error: unknown mode '%s'\n\n" "${MODE}" >&2
+    usage
+    exit 1
+    ;;
 esac
-
-exit 0

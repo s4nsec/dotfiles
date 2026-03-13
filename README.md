@@ -1,4 +1,12 @@
-#TODO:
+# Dotfiles
+
+Primary setup entrypoint:
+
+```bash
+./setup2.sh dev
+```
+
+This bootstrap path is intended for macOS and apt-based Linux machines. Use `./setup2.sh help` for the other modes.
 
 ## Stow
 `.stow-local.ignore` is a file that contains a list of files that should be ignored by stow.

@@ -74,7 +74,6 @@ function verify {
 		;;
 	esac
 	echo "🛠️ You can now start building with Cargo!"
-    echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
 }
 
 function setup_rust {

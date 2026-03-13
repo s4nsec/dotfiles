@@ -1,45 +1,77 @@
-# -- Use fd instead of fzf --
-export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
-
-# Use fd (https://github.com/sharkdp/fd) for listing path candidates.
-# - The first argument to the function ($1) is the base path to start traversal
-# - See the source code (completion.{bash,zsh}) for the details.
-_fzf_compgen_path() {
-  fd --hidden --exclude .git . "$1"
+path_prepend_if_dir() {
+  if [[ -d "$1" && ":$PATH:" != *":$1:"* ]]; then
+    export PATH="$1:$PATH"
+  fi
 }
 
-# Use fd to generate the list for directory completion
-_fzf_compgen_dir() {
-  fd --type=d --hidden --exclude .git . "$1"
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
 }
-source $HOME/.p10k.zsh
-source $HOME/fzf-git.sh/fzf-git.sh
-export BAT_THEME=Dracula
 
-show_file_or_dir_preview="if [ -d {} ]; then eza --tree --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi"
+path_prepend_if_dir "$HOME/.local/bin"
+path_prepend_if_dir "$HOME/.cargo/bin"
+path_prepend_if_dir "/opt/nvim-linux-x86_64/bin"
+
+if command_exists fd; then
+  export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+
+  _fzf_compgen_path() {
+    fd --hidden --exclude .git . "$1"
+  }
+
+  _fzf_compgen_dir() {
+    fd --type=d --hidden --exclude .git . "$1"
+  }
+fi
+
+if [[ -r "$HOME/fzf-git.sh/fzf-git.sh" ]]; then
+  source "$HOME/fzf-git.sh/fzf-git.sh"
+fi
+
+export BAT_THEME="${BAT_THEME:-Dracula}"
+
+if command_exists eza; then
+  __fzf_dir_preview='eza --tree --color=always {} | head -200'
+  alias ls='eza --color=always --long --git --icons=always'
+else
+  __fzf_dir_preview='ls -la {} | head -200'
+fi
+
+if command_exists bat; then
+  __fzf_file_preview='bat -n --color=always --line-range :500 {}'
+else
+  __fzf_file_preview='sed -n "1,200p" {}'
+fi
+
+show_file_or_dir_preview="if [ -d {} ]; then ${__fzf_dir_preview}; else ${__fzf_file_preview}; fi"
 
 export FZF_CTRL_T_OPTS="--preview '$show_file_or_dir_preview'"
-export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+export FZF_ALT_C_OPTS="--preview '${__fzf_dir_preview}'"
 
-# Advanced customization of fzf options via _fzf_comprun function
-# - The first argument to the function is the name of the command.
-# - You should make sure to pass the rest of the arguments to fzf.
 _fzf_comprun() {
-  local command=$1
+  local command="$1"
   shift
 
   case "$command" in
-    cd)           fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
-    export|unset) fzf --preview "eval 'echo ${}'"         "$@" ;;
-    ssh)          fzf --preview 'dig {}'                   "$@" ;;
-    *)            fzf --preview "$show_file_or_dir_preview" "$@" ;;
+    cd)
+      fzf --preview "${__fzf_dir_preview}" "$@"
+      ;;
+    export|unset)
+      fzf --preview 'printenv {}' "$@"
+      ;;
+    ssh)
+      if command_exists dig; then
+        fzf --preview 'dig {}' "$@"
+      else
+        fzf "$@"
+      fi
+      ;;
+    *)
+      fzf --preview "$show_file_or_dir_preview" "$@"
+      ;;
   esac
 }
-# ---- Eza (better ls) -----
 
 plugins+=(vim)
-export PATH=$PATH:~/.local/bin
-alias ls="eza --color=always --long --git --icons=always "
-
