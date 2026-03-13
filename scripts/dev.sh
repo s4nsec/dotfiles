@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  echo "This script is meant to be sourced from setup2.sh."
+  echo "This script is meant to be sourced from setup.sh."
   exit 1
 fi
 
@@ -308,6 +308,18 @@ install_node() {
   log_success "Node.js is installed"
 }
 
+install_ai_cli_tools() {
+  log_section "Installing AI CLI tools"
+
+  if ! command -v npm >/dev/null 2>&1; then
+    log_warn "npm is not available; skipping Codex and Claude CLI installation."
+    return 0
+  fi
+
+  npm install --global --prefix "${HOME}/.local" @openai/codex @anthropic-ai/claude-code >/dev/null
+  log_success "Installed Codex and Claude Code CLIs into ~/.local/bin"
+}
+
 install_tmux_plugin_manager() {
   if [[ -d "${HOME}/.tmux/plugins/tpm/.git" ]]; then
     git -C "${HOME}/.tmux/plugins/tpm" pull --ff-only >/dev/null
@@ -397,7 +409,7 @@ parse_dev_args() {
         ;;
       --help|-h)
         cat <<'EOF'
-Usage: ./setup2.sh dev [options]
+Usage: ./setup.sh dev [options]
 
 Options:
   --skip-node          Do not install Node.js.
@@ -430,6 +442,7 @@ setup_dev() {
   install_ezsh
   install_neovim
   install_node
+  install_ai_cli_tools
   install_shell_tools
   apply_dotfiles
   set_default_shell

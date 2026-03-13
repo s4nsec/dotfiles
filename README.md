@@ -3,10 +3,11 @@
 Primary setup entrypoint:
 
 ```bash
-./setup2.sh dev
+./setup.sh
 ```
 
-This bootstrap path is intended for macOS and apt-based Linux machines. Use `./setup2.sh help` for the other modes.
+With no arguments, `./setup.sh` runs the default stack: `dev`, `rust`, and `llvm 20`.
+Use `./setup.sh help` for the individual modes.
 
 ## Stow
 `.stow-local.ignore` is a file that contains a list of files that should be ignored by stow.

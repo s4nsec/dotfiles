@@ -1,30 +1,34 @@
 #!/bin/bash
-# This script:
-#   - Installs Clang/LLVM and associated packages for the specified VERSION
-#   - Sets up update-alternatives to map 'clang', 'clang++', 'clang-format', etc.
-#     to the specified version.
-#   - If needed, it can be adapted to add the official LLVM repository for the
-#     latest versions not in Ubuntu's default repositories.
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 	echo "This script should be sourced, not executed directly."
 	exit 1
 fi
 
-# Use the following lines to add the official LLVM repo
-#     if the desired version is not available in your default repositories.
-#     Replace 'lunar' (Ubuntu 23.04), 'mantic' (Ubuntu 23.10), etc., with your
-#     actual Ubuntu codename if needed (e.g. 'lunar', 'mantic', 'noble').
-#
-# echo "Adding official LLVM apt repository..."
-# wget https://apt.llvm.org/llvm-snapshot.gpg.key -O /tmp/llvm-snapshot.gpg.key
-# sudo apt-key add /tmp/llvm-snapshot.gpg.key
-# echo "deb http://apt.llvm.org/lunar/ llvm-toolchain-lunar-${VERSION} main" \
-#   | sudo tee /etc/apt/sources.list.d/llvm-toolchain-${VERSION}.list
-# rm /tmp/llvm-snapshot.gpg.key
-#
-function install_tools {
+is_macos_llvm() {
+	[[ "$(uname -s)" == "Darwin" ]]
+}
+
+install_tools() {
 	local VERSION="$1"
+
+	if is_macos_llvm; then
+		if ! command -v brew >/dev/null 2>&1; then
+			echo "   ❌ Error: Homebrew is required on macOS"
+			return 1
+		fi
+
+		local formula="llvm@${VERSION}"
+		if brew info "${formula}" >/dev/null 2>&1; then
+			echo "Installing LLVM via Homebrew formula ${formula}..."
+			brew install "${formula}"
+		else
+			echo "Installing LLVM via Homebrew formula llvm..."
+			brew install llvm
+		fi
+		return 0
+	fi
+
 	echo "Updating package lists..."
 	sudo apt update >/dev/null 2>&1 || echo "   ❌ Error: Failed to update package list"
 
@@ -44,59 +48,47 @@ function install_tools {
 		libc++abi-${VERSION}-dev >/dev/null 2>&1 || echo "   ❌ Error: Failed to install Clang/LLVM version ${VERSION}"
 }
 
-function configure_tools {
+configure_tools() {
 	local VERSION="$1"
 
+	if is_macos_llvm; then
+		echo "LLVM installed via Homebrew. Add it to PATH if you want it preferred over Apple Clang."
+		return 0
+	fi
+
 	echo "Configuring update-alternatives for Clang/LLVM tools... ${VERSION}"
-	# clang
-	sudo update-alternatives \
-		--install /usr/bin/clang clang /usr/bin/clang-${VERSION} 100
-    sudo update-alternatives --set clang /usr/bin/clang-${VERSION}
-	# clang++
-	sudo update-alternatives \
-		--install /usr/bin/clang++ clang++ /usr/bin/clang++-${VERSION} 100
-    sudo update-alternatives --set clang++ /usr/bin/clang++-${VERSION}
-	# clang-format
-	sudo update-alternatives \
-		--install /usr/bin/clang-format clang-format /usr/bin/clang-format-${VERSION} 100
-    sudo update-alternatives --set clang-format /usr/bin/clang-format-${VERSION}
-	# clang-tidy
-	sudo update-alternatives \
-		--install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-${VERSION} 100
-    sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-${VERSION}
-	# clangd
+	sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${VERSION} 100
+	sudo update-alternatives --set clang /usr/bin/clang-${VERSION}
+	sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${VERSION} 100
+	sudo update-alternatives --set clang++ /usr/bin/clang++-${VERSION}
+	sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-${VERSION} 100
+	sudo update-alternatives --set clang-format /usr/bin/clang-format-${VERSION}
+	sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-${VERSION} 100
+	sudo update-alternatives --set clang-tidy /usr/bin/clang-tidy-${VERSION}
+
 	if [ -x "/usr/bin/clangd-${VERSION}" ]; then
-		sudo update-alternatives \
-			--install /usr/bin/clangd clangd /usr/bin/clangd-${VERSION} 100
-    sudo update-alternatives --set clangd /usr/bin/clangd-${VERSION}
+		sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-${VERSION} 100
+		sudo update-alternatives --set clangd /usr/bin/clangd-${VERSION}
 	fi
-	# lldb
 	if [ -x "/usr/bin/lldb-${VERSION}" ]; then
-		sudo update-alternatives \
-			--install /usr/bin/lldb lldb /usr/bin/lldb-${VERSION} 100
-    sudo update-alternatives --set lldb /usr/bin/lldb-${VERSION}
+		sudo update-alternatives --install /usr/bin/lldb lldb /usr/bin/lldb-${VERSION} 100
+		sudo update-alternatives --set lldb /usr/bin/lldb-${VERSION}
 	fi
-	# lldb-server (if available)
 	if [ -x "/usr/bin/lldb-server-${VERSION}" ]; then
-		sudo update-alternatives \
-			--install /usr/bin/lldb-server lldb-server /usr/bin/lldb-server-${VERSION} 100
-    sudo update-alternatives --set lldb-server /usr/bin/lldb-server-${VERSION}
+		sudo update-alternatives --install /usr/bin/lldb-server lldb-server /usr/bin/lldb-server-${VERSION} 100
+		sudo update-alternatives --set lldb-server /usr/bin/lldb-server-${VERSION}
 	fi
-	# lld (if available)
 	if [ -x "/usr/bin/lld-${VERSION}" ]; then
-		sudo update-alternatives \
-			--install /usr/bin/lld lld /usr/bin/lld-${VERSION} 100
-    sudo update-alternatives --set lld /usr/bin/lld-${VERSION}
+		sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-${VERSION} 100
+		sudo update-alternatives --set lld /usr/bin/lld-${VERSION}
 	fi
-	# llvm-strip (if available)
 	if [ -x "/usr/bin/llvm-strip-${VERSION}" ]; then
-		sudo update-alternatives \
-			--install /usr/bin/llvm-strip llvm-strip /usr/bin/llvm-strip-${VERSION} 100
-    sudo update-alternatives --set llvm-strip /usr/bin/llvm-strip-${VERSION}
+		sudo update-alternatives --install /usr/bin/llvm-strip llvm-strip /usr/bin/llvm-strip-${VERSION} 100
+		sudo update-alternatives --set llvm-strip /usr/bin/llvm-strip-${VERSION}
 	fi
 }
 
-function verify_installation {
+verify_installation() {
 	local VERSION="$1"
 	echo
 	echo "Verifying clang installation..."
@@ -116,11 +108,11 @@ function verify_installation {
 
 	echo
 	echo "LLVM/Clang version ${VERSION} installation complete!"
-	echo "You can use 'update-alternatives --config clang' (etc.) to switch versions if multiple are installed."
+	echo "You can use 'update-alternatives --config clang' to switch versions on Linux."
 }
 
-function setup_llvm {
-	local VERSION="$1"
+setup_llvm() {
+	local VERSION="${1:-20}"
 	echo "Installing LLVM/Clang version: ${VERSION}"
 	install_tools "${VERSION}"
 	configure_tools "${VERSION}"

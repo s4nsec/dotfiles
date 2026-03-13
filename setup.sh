@@ -1,109 +1,80 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-## TODO
-# - Fork ezsh and modify script not to prompt for username & password
-# - Make zsh default shell
-#
-#
-# A Bash script to setup Neovim, configure dotfiles, and install ezsh from a Git repository
+set -euo pipefail
 
-# Function to check if Git and curl are installed
-function check_dependencies {
-  required_cmds="git curl stow luarocks"
-  for cmd in $required_cmds; do
-    if ! command -v $cmd &> /dev/null; then
-      echo "$cmd is not installed. Installing $cmd..."
-      sudo apt-get update
-      sudo apt-get install $cmd -y
-    fi
-  done
+usage() {
+  cat <<'EOF'
+Usage: ./setup.sh [mode] [options]
+
+Modes:
+  dev               Bootstrap the main development environment.
+  virt              Setup a virtualization environment.
+  llvm [VERSION]    Setup LLVM toolchain. Defaults to version 20.
+  kernel            Setup a kernel development environment.
+  rust              Setup a Rust development environment.
+  docker            Install and configure Docker.
+  default           Run dev + rust + llvm (20).
+  help              Show this message.
+
+Examples:
+  ./setup.sh
+  ./setup.sh dev
+  ./setup.sh dev --set-default-shell
+  ./setup.sh llvm 20
+EOF
 }
 
-# Clone and setup ezsh
-function setup_ezsh {
-  if [ ! -d "ezsh" ]; then
-    git clone https://github.com/jotyGill/ezsh.git
-    cd ezsh
-    ./install.sh -c
-    cd -
-  else
-    echo "ezsh is already cloned and set up."
-  fi
+run_default_stack() {
+  setup_dev
+  INSTALL_RUST_NIGHTLY="${INSTALL_RUST_NIGHTLY:-N}" setup_rust
+  setup_llvm "20"
 }
 
-# Clone the dotfiles repository
-function clone_dotfiles {
-  if [ ! -d "dotfiles" ]; then
-    git clone git@github.com:vjabrayilov/dotfiles.git
-  else
-    echo "Dotfiles repository already cloned."
-  fi
-}
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-# Copy .p10k.zsh to the home directory
-function copy_p10k {
-    cp dotfiles/.p10k.zsh ~/
-}
+source "${SCRIPT_DIR}/scripts/dev.sh"
+source "${SCRIPT_DIR}/scripts/virtualization.sh"
+source "${SCRIPT_DIR}/scripts/llvm.sh"
+source "${SCRIPT_DIR}/scripts/kernel.sh"
+source "${SCRIPT_DIR}/scripts/rust.sh"
+source "${SCRIPT_DIR}/scripts/docker.sh"
 
-# Set up nvim configuration
-function setup_nvim {
-  mkdir -p ~/.config/nvim
-    cp -r dotfiles/* ~/.config/nvim/
-}
+if [[ $# -eq 0 ]]; then
+  run_default_stack
+  exit 0
+fi
 
-# Install Neovim
-function install_neovim {
-  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
-  sudo rm -rf /opt/nvim
-  sudo tar -C /opt -xzf nvim-linux64.tar.gz
-  rm nvim-linux64.tar.gz  # Clean up the tarball after installation
-  # Update .zshrc to include Neovim in PATH
-  if ! grep -q "/opt/nvim/bin" ~/.zshrc; then
-    echo 'export PATH="$PATH:/opt/nvim-linux64/bin"' >> ~/.zshrc
-  fi
-}
+MODE="$1"
+shift
 
-# Copy the LKV helper scripts and add alias
-function copy_lkv {
-    git clone git@github.com:vjabrayilov/linux-kernel-vscode.git
-    cp linux-kernel-vscode/*.sh .
-    rm -rf linux-kernel-vscode
-
-    if ! grep -q "alias sudo=" ~/.zshrc; then
-        echo 'alias sudo="sudo "' >> ~/.zshrc
-    fi
-    if ! grep -q "alias lkv=" ~/.zshrc; then
-        echo 'alias lkv="bash ~/tasks.sh"' >> ~/.zshrc
-    fi
-}
-
-# Install Kernel and QEMU, KVM depdenencies
-
-function install_deps {
-    sudo apt update
-    sudo apt install -y gdb-multiarch ccache clang clangd llvm lld  \
-    libguestfs-tools libssl-dev trace-cmd python3-pip jsonnet libelf-dev bison \
-    bindfs mmdebstrap proot systemtap flex yacc bc fakeroot qemu qemu-system-x86 \
-    qemu-kvm libvirt-daemon-system virt-manager
-}
-
-# Clone Kernel repo
-
-function clone_kernel {
-    git clone git@github.com:columbia/vmsched-ghost-kernel.git
-}
-
-
-# Main execution sequence
-check_dependencies
-setup_ezsh
-clone_dotfiles
-copy_p10k
-setup_nvim
-install_neovim
-copy_lkv
-source ~/.zshrc
-#clone_kernel
-
-echo "Setup and installation complete."
-
+case "${MODE}" in
+  dev)
+    setup_dev "$@"
+    ;;
+  virt)
+    setup_virtualization "$@"
+    ;;
+  llvm)
+    setup_llvm "${1:-20}"
+    ;;
+  kernel)
+    setup_kernel_env "$@"
+    ;;
+  rust)
+    setup_rust "$@"
+    ;;
+  docker)
+    setup_docker "$@"
+    ;;
+  default)
+    run_default_stack
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    printf "Error: unknown mode '%s'\n\n" "${MODE}" >&2
+    usage
+    exit 1
+    ;;
+esac

@@ -9,5 +9,6 @@ Setting up a dev machine on macOS or an apt-based Linux machine.
          IdentityFile ~/.ssh/github_dummy
   ```
 - Clone `git clone git@github.com:vjabrayilov/dotfiles.git`
-- Run `cd dotfiles && ./setup2.sh dev`
-- Optional: run `cd dotfiles && ./setup2.sh dev --set-default-shell` to switch the login shell to `zsh`.
+- Run `cd dotfiles && ./setup.sh`
+- The default command runs `dev`, `rust`, and `llvm 20`.
+- Optional: run `cd dotfiles && ./setup.sh dev --set-default-shell` to switch the login shell to `zsh`.
