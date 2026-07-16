@@ -74,4 +74,5 @@ _fzf_comprun() {
   esac
 }
 
+VI_MODE_SET_CURSOR=true
 plugins+=(vi-mode)
