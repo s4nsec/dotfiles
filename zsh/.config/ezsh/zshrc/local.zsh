@@ -10,6 +10,7 @@ command_exists() {
 
 path_prepend_if_dir "$HOME/.local/bin"
 path_prepend_if_dir "$HOME/.cargo/bin"
+path_prepend_if_dir "$HOME/.opencode/bin"
 path_prepend_if_dir "/opt/nvim-linux-x86_64/bin"
 
 if command_exists fd; then
