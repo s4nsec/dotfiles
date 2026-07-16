@@ -74,4 +74,4 @@ _fzf_comprun() {
   esac
 }
 
-plugins+=(vim)
+plugins+=(vi-mode)
