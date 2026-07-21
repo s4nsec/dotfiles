@@ -14,9 +14,10 @@ Use `./setup.sh help` for the individual modes.
 
 ## AI tools
 
-The `opencode`, `claude`, and `codex` Stow packages track authored configuration
-for OpenCode, Claude Code, and Codex. Running `./setup.sh dev` backs up existing
-versions of the managed files and links their live locations into this repository.
+The `opencode`, `claude`, `codex`, and `pi` Stow packages track authored
+configuration for OpenCode, Claude Code, Codex, and Pi. Running `./setup.sh dev`
+backs up existing versions of the managed files and links their live locations
+into this repository.
 
 Authentication, histories, caches, generated plugin installations, package
 dependencies, databases, and other runtime state are intentionally not tracked.
