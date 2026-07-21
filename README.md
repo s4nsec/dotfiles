@@ -11,6 +11,18 @@ Use `./setup.sh help` for the individual modes.
 
 ## Stow
 `.stow-local.ignore` is a file that contains a list of files that should be ignored by stow.
+
+## AI tools
+
+The `opencode`, `claude`, `codex`, and `pi` Stow packages track authored
+configuration for OpenCode, Claude Code, Codex, and Pi. Running `./setup.sh dev`
+backs up existing versions of the managed files and links their live locations
+into this repository.
+
+Authentication, histories, caches, generated plugin installations, package
+dependencies, databases, and other runtime state are intentionally not tracked.
+Codex project trust is also configured per machine rather than stored here.
+
 ## Neovim
 
 Some about configuration goes here

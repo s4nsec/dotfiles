@@ -10,6 +10,7 @@ command_exists() {
 
 path_prepend_if_dir "$HOME/.local/bin"
 path_prepend_if_dir "$HOME/.cargo/bin"
+path_prepend_if_dir "$HOME/.opencode/bin"
 path_prepend_if_dir "/opt/nvim-linux-x86_64/bin"
 
 if command_exists fd; then
@@ -74,4 +75,5 @@ _fzf_comprun() {
   esac
 }
 
-plugins+=(vim)
+VI_MODE_SET_CURSOR=true
+plugins+=(vi-mode)

@@ -16,7 +16,6 @@ return {
         -- Ws -> combination under cursor
         -- fh -> help tags
         local builtin = require('telescope.builtin')
-        vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
         vim.keymap.set('n', '<leader>fl', builtin.live_grep, {})
         vim.keymap.set('n', '<leader>fws', function()
             local word = vim.fn.expand("<cword>")
