@@ -140,6 +140,7 @@ install_packages_brew() {
     luarocks
     ripgrep
     stow
+    terminal-notifier
     tmux
     wget
     zsh
@@ -357,6 +358,27 @@ stow_package() {
   log_info "Applied ${package}"
 }
 
+apply_ai_dotfiles() {
+  log_section "Applying AI tool dotfiles"
+
+  backup_if_needed "${HOME}/.config/opencode/opencode.jsonc"
+  backup_if_needed "${HOME}/.config/opencode/agents/reddit-researcher.md"
+  backup_if_needed "${HOME}/.config/opencode/plugins/notification.ts"
+  backup_if_needed "${HOME}/.claude/settings.json"
+  backup_if_needed "${HOME}/.claude/settings.local.json"
+  backup_if_needed "${HOME}/.claude/statusline-command.sh"
+  backup_if_needed "${HOME}/.codex/config.toml"
+
+  (
+    cd "${REPO_ROOT}"
+    stow_package "opencode"
+    stow_package "claude"
+    stow_package "codex"
+  )
+
+  log_success "AI tool dotfiles are applied"
+}
+
 apply_dotfiles() {
   log_section "Applying dotfiles"
 
@@ -378,6 +400,8 @@ apply_dotfiles() {
 
   install_tmux_plugin_manager
   log_success "Dotfiles are applied"
+
+  apply_ai_dotfiles
 }
 
 set_default_shell() {

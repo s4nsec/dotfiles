@@ -1,0 +1,20 @@
+{
+  "enabledPlugins": {
+    "codex@openai-codex": true
+  },
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  },
+  "tui": "fullscreen",
+  "theme": "dark",
+  "model": "claude-fable-5[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  }
+}
