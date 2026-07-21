@@ -358,6 +358,12 @@ stow_package() {
   log_info "Applied ${package}"
 }
 
+stow_package_no_folding() {
+  local package="$1"
+  stow --target="${HOME}" --restow --no-folding "${package}"
+  log_info "Applied ${package}"
+}
+
 apply_ai_dotfiles() {
   log_section "Applying AI tool dotfiles"
 
@@ -368,12 +374,16 @@ apply_ai_dotfiles() {
   backup_if_needed "${HOME}/.claude/settings.local.json"
   backup_if_needed "${HOME}/.claude/statusline-command.sh"
   backup_if_needed "${HOME}/.codex/config.toml"
+  backup_if_needed "${HOME}/.pi/agent/agents/reddit-researcher.md"
+  backup_if_needed "${HOME}/.pi/agent/extensions/subagent/index.ts"
+  backup_if_needed "${HOME}/.pi/agent/extensions/subagent/agents.ts"
 
   (
     cd "${REPO_ROOT}"
     stow_package "opencode"
     stow_package "claude"
     stow_package "codex"
+    stow_package_no_folding "pi"
   )
 
   log_success "AI tool dotfiles are applied"
