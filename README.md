@@ -19,6 +19,9 @@ configuration for OpenCode, Claude Code, Codex, and Pi. Running `./setup.sh dev`
 backs up existing versions of the managed files and links their live locations
 into this repository.
 
+The Pi package includes the `reddit-researcher` subagent and installs the pinned
+`@heyhuynhgiabuu/pi-search` package for `websearch` and `web_fetch` tools.
+
 Authentication, histories, caches, generated plugin installations, package
 dependencies, databases, and other runtime state are intentionally not tracked.
 Codex project trust is also configured per machine rather than stored here.

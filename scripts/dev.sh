@@ -364,6 +364,23 @@ stow_package_no_folding() {
   log_info "Applied ${package}"
 }
 
+install_pi_packages() {
+  local package="npm:@heyhuynhgiabuu/pi-search@0.3.0"
+
+  if ! command -v pi >/dev/null 2>&1; then
+    log_warn "Pi is not available; skipping ${package}."
+    return 0
+  fi
+
+  if pi list 2>/dev/null | grep -Fq "${package}"; then
+    log_info "Pi package ${package} is already installed"
+    return 0
+  fi
+
+  pi install "${package}" >/dev/null
+  log_info "Installed Pi package ${package}"
+}
+
 apply_ai_dotfiles() {
   log_section "Applying AI tool dotfiles"
 
@@ -386,6 +403,7 @@ apply_ai_dotfiles() {
     stow_package_no_folding "pi"
   )
 
+  install_pi_packages
   log_success "AI tool dotfiles are applied"
 }
 
