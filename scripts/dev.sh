@@ -166,6 +166,24 @@ check_dependencies() {
   log_success "Base dependencies are installed"
 }
 
+install_uv() {
+  log_section "Installing uv"
+
+  if command -v uv >/dev/null 2>&1 || [[ -x "${HOME}/.local/bin/uv" ]]; then
+    log_info "uv is already available"
+    return 0
+  fi
+
+  if is_macos; then
+    brew install uv
+  else
+    curl -LsSf https://astral.sh/uv/install.sh | \
+      env UV_INSTALL_DIR="${HOME}/.local/bin" UV_NO_MODIFY_PATH=1 sh
+  fi
+
+  log_success "uv is installed"
+}
+
 clone_or_update_repo() {
   local repo_url="$1"
   local dest_dir="$2"
@@ -491,6 +509,7 @@ setup_dev() {
   log_info "Repo root: ${REPO_ROOT}"
 
   check_dependencies
+  install_uv
   install_ezsh
   install_neovim
   install_node
