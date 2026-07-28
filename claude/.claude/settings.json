@@ -1,5 +1,5 @@
 {
-  "model": "opus",
+  "model": "claude-fable-5[1m]",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
@@ -16,6 +16,6 @@
     }
   },
   "tui": "fullscreen",
-  "theme": "dark",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark"
 }
