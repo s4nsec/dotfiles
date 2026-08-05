@@ -1,8 +1,8 @@
 return {
     "neovim/nvim-lspconfig",
     dependencies = {
-        "williamboman/mason.nvim",
-        "williamboman/mason-lspconfig.nvim",
+        "mason-org/mason.nvim",
+        "mason-org/mason-lspconfig.nvim",
         "hrsh7th/cmp-nvim-lsp",
         "hrsh7th/cmp-buffer",
         "hrsh7th/cmp-path",
@@ -24,79 +24,40 @@ return {
 
         require("fidget").setup({})
         require("mason").setup()
+
+        -- Applied to every server. mason-lspconfig merges its own overrides on top.
+        vim.lsp.config("*", {
+            capabilities = capabilities,
+        })
+
+        vim.lsp.config("lua_ls", {
+            settings = {
+                Lua = {
+                    diagnostics = {
+                        globals = { "vim", "it", "describe", "before_each", "after_each" },
+                    }
+                }
+            }
+        })
+
+        -- ruff is lint/format only: no goto-definition, no hover. pyright covers those.
+        vim.lsp.config("ruff", {
+            on_attach = function(client)
+                client.server_capabilities.hoverProvider = false
+            end,
+        })
+
         require("mason-lspconfig").setup({
             ensure_installed = {
                 "lua_ls",
                 "ruff",
+                "pyright",
+                "gopls",
                 "rust_analyzer",
                 "clangd",
             },
-            handlers = {
-                function(server_name) -- default handler (optional)
-                    require("lspconfig")[server_name].setup {
-                        capabilities = capabilities
-                    }
-                end,
-                ["rust_analyzer"] = function()
-                    -- local lspconfig = require("lspconfig")
-                    -- lspconfig.rust_analyzer.setup {
-                    --     capabilities = capabilities,
-                    --     settings = {
-                    --         ["rust-analyzer"] = {
-                    --             cargo = {
-                    --                 allFeatures = true,
-                    --             },
-                    --             imports = {
-                    --                 group = {
-                    --                     enable = false,
-                    --                 },
-                    --             },
-                    --             completion = {
-                    --                 postfix = {
-                    --                     enable = false,
-                    --                 },
-                    --             },
-                    --         },
-                    --     },
-                    -- }
-                end,
-
-                ["lua_ls"] = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.lua_ls.setup {
-                        capabilities = capabilities,
-                        settings = {
-                            Lua = {
-                                diagnostics = {
-                                    globals = { "vim", "it", "describe", "before_each", "after_each" },
-                                }
-                            }
-                        }
-                    }
-                end,
-                ["ruff"] = function()
-                    local lspconfig = require("lspconfig")
-                    local configs = require 'lspconfig.configs'
-                    if not configs.ruff_lsp and vim.fn.executable('ruff-lsp') == 1 then
-                        configs.ruff_lsp = {
-                            default_config = {
-                                cmd = { 'ruff-lsp' },
-                                filetypes = { 'python' },
-                                root_dir = require('lspconfig').util.find_git_ancestor,
-                                init_options = {
-                                    settings = {
-                                        args = {}
-                                    }
-                                }
-                            }
-                        }
-                    end
-                    if configs.ruff_lsp then
-                        lspconfig.ruff_lsp.setup {}
-                    end
-                end,
-
-            }
+            -- rustaceanvim owns rust_analyzer; enabling it here too spawns a second client.
+            automatic_enable = { exclude = { "rust_analyzer" } },
         })
 
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
