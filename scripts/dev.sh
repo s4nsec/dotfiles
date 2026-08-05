@@ -112,6 +112,7 @@ install_packages_apt() {
     gcc
     g++
     git
+    golang
     luarocks
     make
     python3
@@ -136,12 +137,15 @@ install_packages_brew() {
     fd
     fontconfig
     gcc
+    gh
     git
+    go
     luarocks
     ripgrep
     stow
     terminal-notifier
     tmux
+    tree-sitter
     wget
     zsh
   )
