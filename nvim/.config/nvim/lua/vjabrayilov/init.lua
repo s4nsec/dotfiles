@@ -45,6 +45,32 @@ autocmd('LspAttach', {
         vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
         vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
         vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
+
+        -- Fill every named argument of the call under the cursor: foo(name=, age=)
+        vim.keymap.set("i", "<C-s>a", function()
+            local params = vim.lsp.util.make_position_params(0, "utf-16")
+            local res = vim.lsp.buf_request_sync(0, "textDocument/signatureHelp", params, 1000)
+            for _, r in pairs(res or {}) do
+                local sig = r.result and r.result.signatures and r.result.signatures[1]
+                if sig then
+                    local parts = {}
+                    for _, p in ipairs(sig.parameters or {}) do
+                        local text = type(p.label) == "table"
+                            and sig.label:sub(p.label[1] + 1, p.label[2])
+                            or p.label
+                        local name = text:match("^([%w_]+)")
+                        if name then
+                            table.insert(parts, string.format("%s=${%d:}", name, #parts + 1))
+                        end
+                    end
+                    if #parts > 0 then
+                        require("luasnip").lsp_expand(table.concat(parts, ", ") .. "$0")
+                    end
+                    return
+                end
+            end
+        end, opts)
+
         vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
         vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
     end
