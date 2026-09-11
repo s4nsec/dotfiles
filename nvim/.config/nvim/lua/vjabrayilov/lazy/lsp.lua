@@ -47,6 +47,37 @@ return {
             end,
         })
 
+        vim.lsp.config("ltex_plus", {
+            settings = {
+                ltex = {
+                    language = "en-GB",
+                    diagnosticSeverity = "information",
+                    additionalRules = {
+                        enablePickyRules = false,
+                    },
+                    disabledRules = {
+                        ["en-GB"] = { "MORFOLOGIK_RULE_EN_GB" },
+                    },
+                },
+            },
+        })
+
+        vim.lsp.config("texlab", {
+            settings = {
+                texlab = {
+                    build = {
+                        executable = "latexmk",
+                        args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "%f" },
+                        onSave = true,
+                    },
+                    chktex = {
+                        onOpenAndSave = true,
+                        onEdit = false,
+                    },
+                },
+            },
+        })
+
         require("mason-lspconfig").setup({
             ensure_installed = {
                 "lua_ls",
@@ -55,6 +86,9 @@ return {
                 "gopls",
                 "rust_analyzer",
                 "clangd",
+                "marksman",
+                "texlab",
+                "ltex_plus",
             },
             -- rustaceanvim owns rust_analyzer; enabling it here too spawns a second client.
             automatic_enable = { exclude = { "rust_analyzer" } },

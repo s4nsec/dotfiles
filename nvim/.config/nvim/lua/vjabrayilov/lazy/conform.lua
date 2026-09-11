@@ -7,6 +7,7 @@ return {
             formatters_by_ft = {
                 -- ruff_format does not sort imports; organize_imports runs first for that.
                 python = { "ruff_organize_imports", "ruff_format" },
+                markdown = { "prettier" },
             },
             format_on_save = {
                 timeout_ms = 2000,

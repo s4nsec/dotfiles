@@ -114,10 +114,13 @@ install_packages_apt() {
     git
     golang
     luarocks
+    lsof
     make
+    procps
     python3
     python3-venv
     ripgrep
+    shellcheck
     stow
     tmux
     unzip
@@ -142,6 +145,7 @@ install_packages_brew() {
     go
     luarocks
     ripgrep
+    shellcheck
     stow
     terminal-notifier
     tmux
@@ -331,16 +335,21 @@ install_node() {
   log_success "Node.js is installed"
 }
 
-install_ai_cli_tools() {
-  log_section "Installing AI CLI tools"
+install_node_cli_tools() {
+  log_section "Installing global Node.js tools"
 
   if ! command -v npm >/dev/null 2>&1; then
-    log_warn "npm is not available; skipping Codex and Claude CLI installation."
+    log_warn "npm is not available; skipping Codex, Claude Code, OpenCode, Prettier, and Tree-sitter CLI installation."
     return 0
   fi
 
-  npm install --global --prefix "${HOME}/.local" @openai/codex @anthropic-ai/claude-code >/dev/null
-  log_success "Installed Codex and Claude Code CLIs into ~/.local/bin"
+  npm install --global --prefix "${HOME}/.local" \
+    @anthropic-ai/claude-code \
+    @openai/codex \
+    opencode-ai \
+    prettier \
+    tree-sitter-cli >/dev/null
+  log_success "Installed Codex, Claude Code, OpenCode, Prettier, and Tree-sitter CLI into ~/.local/bin"
 }
 
 install_tmux_plugin_manager() {
@@ -517,7 +526,7 @@ setup_dev() {
   install_ezsh
   install_neovim
   install_node
-  install_ai_cli_tools
+  install_node_cli_tools
   install_shell_tools
   apply_dotfiles
   set_default_shell

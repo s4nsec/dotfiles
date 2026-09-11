@@ -7,6 +7,7 @@ return {
             "nvim-treesitter/nvim-treesitter",
             "marilari88/neotest-vitest",
             "nvim-neotest/neotest-plenary",
+            "nvim-neotest/neotest-python",
         },
         config = function()
             local neotest = require("neotest")
@@ -17,6 +18,9 @@ return {
                         -- this is my standard location for minimal vim rc
                         -- in all my projects
                         min_init = "./scripts/tests/minimal.vim",
+                    }),
+                    require("neotest-python")({
+                        runner = "pytest",
                     }),
                     require("rustaceanvim.neotest"),
                 }
@@ -32,4 +36,3 @@ return {
         end,
     },
 }
-
