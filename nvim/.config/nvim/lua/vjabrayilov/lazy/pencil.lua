@@ -3,7 +3,6 @@ local prose_filetypes = {
     "gitcommit",
     "latex",
     "mail",
-    "markdown",
     "rst",
     "tex",
     "text",
@@ -29,6 +28,16 @@ return {
                 })
                 vim.opt_local.textwidth = 80
                 vim.opt_local.formatoptions:remove("l")
+            end,
+        })
+
+        -- Hard wrapping can split commands and other syntax inside fenced code
+        -- blocks. Prettier handles Markdown prose while preserving those blocks.
+        vim.api.nvim_create_autocmd("FileType", {
+            group = "prose_wrapping",
+            pattern = "markdown",
+            callback = function()
+                vim.fn["pencil#init"]({ wrap = "soft" })
             end,
         })
     end,
