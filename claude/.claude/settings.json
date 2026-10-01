@@ -2,7 +2,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5-1",
+  "model": "opus[1m]",
   "worktree": {
     "baseRef": "head"
   },
@@ -12,7 +12,8 @@
   },
   "enabledPlugins": {
     "codex@openai-codex": true,
-    "i-have-adhd@i-have-adhd": true
+    "i-have-adhd@i-have-adhd": true,
+    "fp-check@skills-dir": false
   },
   "extraKnownMarketplaces": {
     "openai-codex": {
@@ -42,5 +43,6 @@
   "theme": "dark",
   "editorMode": "vim",
   "preferredNotifChannel": "ghostty",
+  "switchModelsOnFlag": false,
   "voiceEnabled": true
 }
