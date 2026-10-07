@@ -36,6 +36,16 @@ return {
                 "<cmd>Trouble qflist toggle<cr>",
                 desc = "Quickfix List (Trouble)",
             },
+            {
+                "gci",
+                "<cmd>Trouble lsp_incoming_calls toggle focus=true<cr>",
+                desc = "Incoming Calls (Trouble)",
+            },
+            {
+                "gco",
+                "<cmd>Trouble lsp_outgoing_calls toggle focus=true<cr>",
+                desc = "Outgoing Calls (Trouble)",
+            },
         },
     }
 }
