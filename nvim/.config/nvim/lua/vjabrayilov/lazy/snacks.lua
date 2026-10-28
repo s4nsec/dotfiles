@@ -85,8 +85,8 @@ return {
         { "gr", function() Snacks.picker.lsp_references() end, desc = "References" },
         { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
         { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto Type Definition" },
-        { "gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "Incoming Calls" },
-        { "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "Outgoing Calls" },
+        { "gai", function() require("vjabrayilov.call_tree").incoming() end, desc = "Incoming Call Tree" },
+        { "gao", function() require("vjabrayilov.call_tree").outgoing() end, desc = "Outgoing Call Tree" },
         { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
         { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
 

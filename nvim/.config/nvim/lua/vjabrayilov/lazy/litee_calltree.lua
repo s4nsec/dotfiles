@@ -1,6 +1,9 @@
 return {
     "ldelossa/litee-calltree.nvim",
     dependencies = { "ldelossa/litee.nvim" },
+    -- Load before the keys are pressed: lazy's key stub is an expr mapping, and
+    -- litee creates its help buffer on require, which fails under textlock (E565).
+    event = "LspAttach",
     opts = {
         on_open = "panel",
         map_resize_keys = false,
