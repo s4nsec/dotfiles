@@ -5,3 +5,17 @@
 	template = ~/commit-template.txt
 [pull]
 	rebase = true
+[sendemail]
+	smtpServer = smtp.gmail.com
+	smtpServerPort = 587
+	smtpEncryption = tls
+	confirm = always
+	suppresscc = self
+	smtpUser = sanan.hasanou@gmail.com
+	from = Sanan Hasanov <sanan.hasanou@gmail.com>
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
